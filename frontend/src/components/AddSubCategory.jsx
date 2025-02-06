@@ -96,7 +96,7 @@ const AddSubCategory = ({ data }) => {
 
             {/* Category Select */}
             <Select onValueChange={handleCategorySelect}>
-              <SelectTrigger className="outline-none focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 border-[#3C3C3C] px-3 w-60 rounded-xl flex flex-row justify-between">
+              <SelectTrigger className="outline-none focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 border-[1.5px] border-[#3C3C3C73] px-3 w-64 rounded-xl flex flex-row justify-between  py-[22px]">
                 <SelectValue placeholder="Select category" />
                 <ChevronDown className="text-[#A7A7A7] h-4 w-4" />
               </SelectTrigger>
@@ -118,11 +118,11 @@ const AddSubCategory = ({ data }) => {
               value={formData.name}
               onChange={handleChange}
               placeholder="Enter subcategory name"
-              className="outline-none placeholder:text-[#A7A7A7] placeholder:text-xs focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 border-[#3C3C3C] px-3 w-60 rounded-xl"
+              className="outline-none placeholder:text-[#A7A7A7] placeholder:text-xs focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 border-[#3C3C3C] px-3 border-[1.5px] border-[#3C3C3C73] px-3 w-64 rounded-xl  py-[22px]"
             />
           </div>
           <DialogFooter className="flex items-center justify-center gap-2 mt-4">
-            <Button type="submit" disabled={isLoading} className="px-5 bg-buttonColor text-sm font-medium text-bgColor uppercase">
+            <Button type="submit" disabled={isLoading} className="px-6 bg-buttonColor text-sm font-medium text-bgColor uppercase">
               {isLoading ? 'Loading...' : 'Add'}
             </Button>
             <DialogClose asChild>

@@ -84,7 +84,7 @@ const AddCategory = () => {
               value={category}
               onChange={handleChange}
               placeholder="Enter category name"
-              className="placeholder:text-[#A7A7A7] placeholder:text-xs border-[#3C3C3C] px-3 w-60 rounded-xl"
+              className="placeholder:text-[#A7A7A7] placeholder:text-xs py-[22px] border-[1.5px] border-[#3C3C3C73] px-3 w-64 rounded-xl"
             />
           </div>
 
@@ -92,7 +92,7 @@ const AddCategory = () => {
             <Button
               type="submit"
               disabled={loading}
-              className="px-5 bg-buttonColor text-sm font-medium text-bgColor uppercase"
+              className="px-6 bg-buttonColor cursor-pointer text-sm font-medium text-bgColor uppercase"
             >
               {loading ? 'Loading...' : 'Add'}
             </Button>

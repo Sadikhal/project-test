@@ -104,13 +104,13 @@ const ImageCropModal = ({ isOpen, onClose, onUploadComplete, queue }) => {
               setSrc(null);
               setCurrentFile(null);
             }}
-            className="bg-red-500"
+            className="bg-gray-300"
           >
             Cancel
           </Button>
           <Button 
             onClick={handleCropComplete} 
-            className="bg-green-500"
+            className="bg-buttonColor"
             disabled={uploading}
           >
             {uploading ? 'Uploading...' : 'Crop & Upload'}

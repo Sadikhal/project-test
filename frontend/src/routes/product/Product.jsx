@@ -166,7 +166,7 @@ function Product() {
 
           {/* Action Buttons */}
           <div className="flex space-x-4 pt-2 items-center">
-            <AddProduct title="Edit" btn={true} />
+            <AddProduct title="Edit" product={product} />
             {selectedVariant?.quantity > 0 ? (
               <Button className="lg:px-12 px-8 md:px-12 py-[22px] font-semibold text-base text-bgColor bg-buttonColor hover:bg-buttonColor/80 rounded-2xl">
                 Buy it now

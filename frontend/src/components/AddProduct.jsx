@@ -1,6 +1,3 @@
-
-
-
 import React, { useEffect, useState } from 'react';
 import { Button } from './ui/button';
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from './ui/dailog';
@@ -15,19 +12,14 @@ import { useToast } from './ui/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 
-
-const AddProduct = ({ title }) => {
+const AddProduct = ({ title, product }) => {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(null);
   const [subCategories, setSubCategories] = useState([]);
-  const [uploading, setUploading] = useState(false);
-  const [images, setImages] = useState([]);
-  const navigate = useNavigate();
-  const [refresh, setRefresh] = useState(false);
   const [selectedRam, setSelectedRam] = useState([]);
-    const {toast} = useToast()
-    const { currentUser } = useSelector((state) => state.user);
-  
+  const { toast } = useToast();
+  const { currentUser } = useSelector((state) => state.user);
+
   const initialFormData = {
     name: '',
     subCategory: '',
@@ -35,13 +27,10 @@ const AddProduct = ({ title }) => {
     variants: [],
     image: [],
   }
-  // State Management
-  const [formData, setFormData] = useState(initialFormData);
 
-  // Image cropping states
+  const [formData, setFormData] = useState(initialFormData);
   const [cropQueue, setCropQueue] = useState([]);
   const [isCropModalOpen, setIsCropModalOpen] = useState(false);
-
   const ramOptions = [4, 8];
   const maxQuantity = 100;
 
@@ -53,7 +42,6 @@ const AddProduct = ({ title }) => {
     }))
   );
 
-  // get SUB Categories
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -62,14 +50,33 @@ const AddProduct = ({ title }) => {
       } catch (error) {
         console.error(error);
         setError('Something went wrong while fetching categories.');
-      } finally {
-        setIsLoading(false);
       }
     };
     fetchData();
   }, []);
 
-  //IMAGE UPLOADING
+  useEffect(() => {
+    if (title === "Edit" && product) {
+      setFormData({
+        name: product.name,
+        subCategory: product.subCategory?._id || '',
+        desc: product.desc,
+        image: product.image,
+        variants: product.variants,
+      });
+
+      const newVariants = ramOptions.map(ram => {
+        const existingVariant = product.variants.find(v => v.ram === ram);
+        return existingVariant ? 
+          { ...existingVariant } : 
+          { ram, price: '', quantity: 1 };
+      });
+      
+      setVariants(newVariants);
+      setSelectedRam(product.variants.map(v => v.ram));
+    }
+  }, [product, title]);
+
   const handleImageUpload = (event) => {
     const files = Array.from(event.target.files);
     if (formData.image.length + files.length > 3) {
@@ -87,6 +94,7 @@ const AddProduct = ({ title }) => {
     }));
     setCropQueue(prev => prev.slice(1));
   };
+
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -94,14 +102,13 @@ const AddProduct = ({ title }) => {
   const handleSubCategoryChange = (value) => {
     setFormData({ ...formData, subCategory: value });
   };
-// RAM SELECTION
+
   const handleRamSelect = (ram) => {
     setSelectedRam((prevSelected) =>
       prevSelected.includes(ram) ? prevSelected.filter((item) => item !== ram) : [...prevSelected, ram]
     );
   };
 
-  //QUANTITY CHANGE HANDLERS
   const handleQuantityChange = (index, type) => {
     setVariants((prevVariants) =>
       prevVariants.map((variant, i) =>
@@ -118,33 +125,29 @@ const AddProduct = ({ title }) => {
     );
   };
 
-  //PRICE CHANGE HANDLERS
-
   const handlePriceChange = (index, value) => {
     setVariants((prevVariants) =>
       prevVariants.map((variant, i) => (i === index ? { ...variant, price: value } : variant))
     );
   };
 
-
-  //SUBMISSION  HANDLING
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    
     if (!currentUser) {
       toast({
         variant: 'destructive',
         title: 'Authentication Required',
         description: 'Please log in to add a product.',
       });
-      return; // Stop submission if not authenticated
+      return;
     }
-    // Filter variants based on selected RAM
-    const filteredVariants = variants.filter((variant) => selectedRam.includes(variant.ram));
-    // Check if any field is empty
 
-    if (filteredVariants.length === 0  || !formData.desc || !formData.name || !formData.image || !formData.subCategory ) {
-     toast({
+    const filteredVariants = variants.filter((variant) => selectedRam.includes(variant.ram));
+    
+    if (filteredVariants.length === 0 || !formData.desc || !formData.name || !formData.image || !formData.subCategory) {
+      toast({
         variant: 'destructive',
         title: 'Missing Fields',
         description: 'Please fill in all the fields before submitting.',
@@ -156,25 +159,31 @@ const AddProduct = ({ title }) => {
       ...formData,
       variants: filteredVariants,
     };
-// data submission
+
     try {
-      const response = await apiRequest.post('/product', productData);
+      let response;
+      if (title === "Edit") {
+        response = await apiRequest.put(`/product/${product._id}`, productData);
+      } else {
+        response = await apiRequest.post('/product', productData);
+      }
+
       toast({
         variant: 'primary',
-        description: 'product is successfully uploaded',
+        description: title === "Edit" ? 'Product updated successfully' : 'Product uploaded successfully',
       });
+
       setFormData(initialFormData);
       setLoading(false);
       window.location.reload();
     } catch (error) {
-        const errorMessage = error.response?.data?.message  || "There was a problem with your request.";
-        toast({
-          variant: 'destructive',
-          title: "Uh oh! Something went wrong.",
-          description: errorMessage 
-        });
-      }
-      
+      const errorMessage = error.response?.data?.message || "There was a problem with your request.";
+      toast({
+        variant: 'destructive',
+        title: "Uh oh! Something went wrong.",
+        description: errorMessage 
+      });
+    }
   };
 
   return (
@@ -193,35 +202,33 @@ const AddProduct = ({ title }) => {
 
       <DialogContent className="px-4 lg:px-12 lg:w-[63%]">
         <DialogHeader className="flex items-center justify-center py-6">
-          <DialogTitle className="font-semibold text-xl text-[#3C3C3C]">Add Product</DialogTitle>
+          <DialogTitle className="font-semibold text-xl text-[#3C3C3C]">
+            {title} Product
+          </DialogTitle>
         </DialogHeader>
 
-        {/* Form Sections */}
         <div className="flex flex-col gap-5">
-          {/* Title Input */}
           <div className="flex flex-row w-full items-center justify-between gap-10">
             <label className="text-[#A7A7A7] capitalize font-medium text-lg">Title:</label>
             <Input
               name="name"
               value={formData.name}
               onChange={handleInputChange}
-              className="w-[75%] pl-2"
+              className="w-[75%] pl-2 py-[22px] border-[1.5px] border-[#3C3C3C73]"
               placeholder="Title"
             />
           </div>
 
-          {/* Variants Section */}
           <div className="flex flex-row w-full justify-between gap-10">
             <label className="text-[#A7A7A7] capitalize font-medium text-lg">Variants:</label>
             <div className="flex flex-col gap-1 w-[75%]">
               {variants.map((variant, index) => (
                 <div key={index} className="flex items-center w-full justify-between gap-3 ">
-                  {/* RAM Selection */}
                   <div className="flex gap-2 items-center flex-1">
                     <div className='text-[#A7A7A7] font-medium text-sm py-3 font-montserrat'>Ram:</div>
                     <Button
                       onClick={() => handleRamSelect(variant.ram)}
-                      className={`p-2 border text-[#3C3C3C] w-full font-medium text-sm text-left flex justify-start rounded-lg ${
+                      className={`p-2 cursor-pointer border text-[#3C3C3C] w-full font-medium text-sm text-left flex justify-start rounded-lg ${
                         selectedRam.includes(variant.ram) ? 'border-2 border-gray-500' : 'border-[#A7A7A7]'
                       }`}
                     >
@@ -229,11 +236,10 @@ const AddProduct = ({ title }) => {
                     </Button>
                   </div>
 
-                  {/* Price Input */}
                   <div className="flex gap-2 items-center flex-1">
                     <div className='text-[#A7A7A7] font-medium text-sm py-3 font-montserrat'>Price:</div>
                     <Input
-                      className="p-2 border text-[#3C3C3C] border-[#A7A7A7] font-medium text-sm rounded-lg w-full"
+                      className="p-2 border cursor-pointer text-[#3C3C3C] border-[#A7A7A7] font-medium text-sm rounded-lg w-full"
                       type="number"
                       value={variant.price}
                       onChange={(e) => handlePriceChange(index, e.target.value)}
@@ -241,18 +247,17 @@ const AddProduct = ({ title }) => {
                     />
                   </div>
 
-                  {/* Quantity Controls */}
                   <div className="flex gap-2 items-center px-2 lg:pr-4 flex-1">
-                    <div className='text-[#A7A7A7] font-medium text-sm py-3 font-montserrat'>QTY:</div>
+                    <div className='text-[#A7A7A7] font-medium text-sm py-3 cursor-pointer font-montserrat'>QTY:</div>
                     <div className="border border-[#A7A7A7] w-full py-[5px] flex items-center justify-between rounded-lg px-1">
                       <GoChevronLeft
                         onClick={() => handleQuantityChange(index, 'decrement')}
-                        className="cursor-pointer text-[#A7A7A7] text-3xl"
+                        className="cursor-pointer text-[#A7A7A7] cursor-pointer text-3xl"
                       />
                       <span>{variant.quantity}</span>
                       <GoChevronRight
                         onClick={() => handleQuantityChange(index, 'increment')}
-                        className="cursor-pointer text-[#A7A7A7] text-3xl"
+                        className="cursor-pointer cursor-pointer text-[#A7A7A7] text-3xl"
                       />
                     </div>
                   </div>
@@ -261,37 +266,36 @@ const AddProduct = ({ title }) => {
             </div>
           </div>
 
-          {/* Subcategory Selection */}
           <div className="flex flex-row w-full items-center justify-between gap-10">
             <label className="text-[#A7A7A7] font-medium text-lg">Sub Category:</label>
-            <Select onValueChange={handleSubCategoryChange}>
-              <SelectTrigger className="w-[75%] pl-2 placeholder:text-[#A7A7A7] text-black">
+            <Select onValueChange={handleSubCategoryChange} value={formData.subCategory}>
+              <SelectTrigger className="w-[75%] pl-2 placeholder:text-[#A7A7A7] text-black py-[22px] border-[1.5px] border-[#3C3C3C73]">
                 <SelectValue placeholder="Select category" className='placeholder:text-[#A7A7A7] text-black' />
                 <ChevronDown />
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup className='bg-bgColor '>
                   {subCategories.map((item) => (
-                    <SelectItem className="placeholder:text-[#A7A7A7] text-black" key={item._id} value={item._id}>{item.name}</SelectItem>
+                    <SelectItem className="placeholder:text-[#A7A7A7] text-black" key={item._id} value={item._id}>
+                      {item.name}
+                    </SelectItem>
                   ))}
                 </SelectGroup>
               </SelectContent>
             </Select>
           </div>
 
-          {/* Description Input */}
           <div className="flex flex-row w-full items-center justify-between gap-10">
             <label className="text-[#A7A7A7] capitalize font-medium text-lg">Description:</label>
             <Input
               name="desc"
               value={formData.desc}
               onChange={handleInputChange}
-              className="w-[75%] pl-2"
+              className="w-[75%] pl-2 py-[22px] border-[1.5px] border-[#3C3C3C73] rounded-lg border-[#3C3C3C73]"
               placeholder="Description"
             />
           </div>
 
-          {/* Image Upload Section */}
           <div className="flex flex-row w-full justify-between gap-8 items-baseline">
             <label className="text-[#A7A7A7] capitalize font-medium text-nowrap text-lg justify-end">
               Upload image:
@@ -299,11 +303,11 @@ const AddProduct = ({ title }) => {
             <div className='flex items-center w-[75%] text-left gap-4'>
               <div className="flex flex-row gap-5">
                 {formData.image.map((image, index) => (
-                  <div className='border p-2 rounded-lg' key={index}>
+                  <div className='border-[1.5px] border-[#3C3C3C73] p-2 rounded-lg' key={index}>
                     <img 
                       src={image} 
                       alt="Preview" 
-                      className="w-24 h-20 object-cover rounded-md border border-gray-300" 
+                      className="w-30 h-[86px] object-cover rounded-lg" 
                     />
                   </div>
                 ))}
@@ -327,7 +331,6 @@ const AddProduct = ({ title }) => {
           </div>
         </div>
 
-        {/* Form Actions */}
         <DialogFooter>
           <Button onClick={handleSubmit} className="bg-buttonColor text-bgColor px-6 py-0 uppercase">
             {title}
@@ -337,7 +340,6 @@ const AddProduct = ({ title }) => {
           </DialogClose>
         </DialogFooter>
 
-        {/* Image Crop Modal */}
         <ImageCropModal
           isOpen={isCropModalOpen}
           onClose={() => setIsCropModalOpen(false)}
