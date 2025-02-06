@@ -27,9 +27,9 @@ app.use("/api/auth", authRoutes);
 app.use("/api/category", categoryRoutes);
 app.use("/api/subCategory", subCategoryRoutes);
 app.use("/api/product", productRoutes);
-app.use("/", (req,res) => {
-  res.send("API is running...");
-});
+// app.use("/", (req,res) => {
+//   res.send("API is running...");
+// });
 
 
 app.use((err, req, res, next) => {
