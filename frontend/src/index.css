@@ -1,0 +1,27 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
+@import "tailwindcss";
+
+
+:root{
+  font-family: "Montserrat", serif;
+}
+@theme {
+  --color-inputGreen: #F4F8F5;
+  --color-textBlack :  #3C3C3C;
+  --color-buttonColor : #EDA415;
+  --color-bgColor : #FFFF,
+  --color-textBlack : #373737;
+  --color-navColor : #003F62;
+  --color-textColor: #003F62;
+  --color-fontColor : #3A3A3A;
+  --color-textGreen : #30BD57
+
+  --font-poppins:"Poppins",serif;
+  --font-figtree:"Figtree",serif;
+  --font-montserrat:"Montserrat",serif;
+ 
+}

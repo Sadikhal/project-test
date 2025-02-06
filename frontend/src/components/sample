@@ -1,0 +1,1016 @@
+import React, { useEffect, useState } from 'react';
+import { Button } from './ui/button';
+import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from './ui/dailog';
+import { Input } from './ui/input';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import { ChevronDown } from 'lucide-react';
+import { GoChevronLeft, GoChevronRight } from 'react-icons/go';
+import { apiRequest } from '../lib/apiRequest';
+import upload from '../lib/upload';
+import ImageCropper from './ImageCropper';
+
+const AddProduct = ({title}) => {
+  const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [subCategories, setSubCategories] = useState([]);
+  const [uploading, setUploading] = useState(false);
+  const [images, setImages] = useState([]); // State to hold selected image files
+const [selectedRam,setSelectedRam] = useState([]); // State to hold selected
+  const [formData, setFormData] = useState({
+    name: '',
+    subCategory: '',
+    desc: '',
+    variants: [],
+    image: [], // State to hold uploaded image URLs
+  });
+
+  const ramOptions = [4, 8];
+  const maxQuantity = 100;
+
+  const [variants, setVariants] = useState(
+    ramOptions.map((ram) => ({
+      ram,
+      price: '',
+      quantity: 1,
+    }))
+  );
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await apiRequest.get('/subCategory');
+        setSubCategories(response.data);
+      } catch (error) {
+        console.error(error);
+        setError('Something went wrong while fetching categories.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
+  // Handle image upload
+  const handleImageUpload = async (files) => {
+    setUploading(true);
+    try {
+      const uploadedUrls = await Promise.all(
+        files.map(async (file) => {
+          const url = await upload(file);
+          return url;
+        })
+      );
+      setFormData(prev => ({ 
+        ...prev, 
+        image: [...prev.image, ...uploadedUrls]
+      }));
+    } catch (err) {
+      console.error('Upload Error:', err);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleRemoveImage = (index) => {
+    setFormData(prev => ({
+      ...prev,
+      image: prev.image.filter((_, i) => i !== index)
+    }));
+  };
+
+
+  const handleInputChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubCategoryChange = (value) => {
+    setFormData({ ...formData, subCategory: value });
+  };
+
+  const handleRamSelect = (ram) => {
+    setSelectedRam((prevSelected) =>
+      prevSelected.includes(ram) ? prevSelected.filter((item) => item !== ram) : [...prevSelected, ram]
+    );
+  };
+
+  const handleQuantityChange = (index, type) => {
+    setVariants((prevVariants) =>
+      prevVariants.map((variant, i) =>
+        i === index
+          ? {
+              ...variant,
+              quantity:
+                type === 'increment'
+                  ? Math.min(variant.quantity + 1, maxQuantity)
+                  : Math.max(variant.quantity - 1, 1),
+            }
+          : variant
+      )
+    );
+  };
+
+  const handlePriceChange = (index, value) => {
+    setVariants((prevVariants) =>
+      prevVariants.map((variant, i) => (i === index ? { ...variant, price: value } : variant))
+    );
+  };
+
+  const handleSubmit = async () => {
+    const filteredVariants = variants.filter((variant) => selectedRam.includes(variant.ram));
+
+    if (filteredVariants.length === 0) {
+      alert('Please select at least one RAM variant.');
+      return;
+    }
+
+    const productData = {
+      ...formData,
+      variants: filteredVariants,
+    };
+
+    try {
+      console.log('Submitting Data:', productData);
+      const response = await apiRequest.post('/product', productData);
+      alert('Product added successfully!');
+      console.log(response.data);
+    } catch (error) {
+      console.error('Submission Error:', error);
+      alert('Error adding product.');
+    }
+  };
+
+  return (
+    <Dialog className="w-full">
+      <DialogTrigger>
+        <Button variant="secondary" size="base" >
+         {title} product
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="px-4 lg:px-12 lg:w-[63%]">
+        <DialogHeader className="flex items-center justify-center py-6">
+          <DialogTitle className="font-semibold text-xl text-[#3C3C3C]">Add Product</DialogTitle>
+        </DialogHeader>
+
+        <div className="flex flex-col gap-5">
+          <div className="flex flex-row w-full items-center justify-between gap-10">
+            <label className="text-[#A7A7A7] capitalize font-medium text-lg">Title:</label>
+            <Input
+              name="name"
+              value={formData.name}
+              onChange={handleInputChange}
+              className="w-[75%] pl-2"
+              placeholder="Title"
+            />
+          </div>
+
+          <div className="flex flex-row w-full justify-between gap-10">
+            <label className="text-[#A7A7A7] capitalize font-medium text-lg">Variants:</label>
+            <div className="flex flex-col gap-1 w-[75%]">
+              {variants.map((variant, index) => (
+                <div key={index} className="flex items-center w-full justify-between gap-3 ">
+                <div className="flex gap-2 items-center flex-1">
+                  <div className='text-[#A7A7A7] font-medium text-sm py-3  font-montserrat'>
+                    Ram:
+                  </div>
+                  <Button
+                    onClick={() => handleRamSelect(variant.ram)}
+                    className={`p-2 border border-[#A7A7A7] text-[#3C3C3C] w-full font-medium text-sm text-left flex justify-start rounded-lg ${
+                      selectedRam.includes(variant.ram) ? 'border-2 border-gray-500' : 'border-[#A7A7A7]'
+                    }`}
+                  >
+                    {variant.ram} GB
+                  </Button>
+</div>
+
+<div className="flex gap-2 items-center flex-1">
+                  <div className='text-[#A7A7A7] font-medium text-sm py-3 font-montserrat'>
+                    Price:
+                  </div>
+                  <Input
+                  className="p-2  border text-[#3C3C3C] border-[#A7A7A7] font-medium text-sm rounded-lg w-full"
+                    type="number"
+                    value={variant.price}
+                    onChange={(e) => handlePriceChange(index, e.target.value)}
+                    placeholder="Price"
+                  />
+                   </div>
+                   <div className="flex gap-2 items-center px-2 lg:pr-4 flex-1">
+                  <div className='text-[#A7A7A7] font-medium text-sm py-3 font-montserrat'>
+                    QTY:
+                  </div>
+                   
+                  <div className="border border-[#A7A7A7] w-full py-[5px] flex items-center justify-between rounded-lg px-1">
+                    <GoChevronLeft
+                      onClick={() => handleQuantityChange(index, 'decrement')}
+                      className="cursor-pointer text-[#A7A7A7]  text-3xl"
+                    />
+                    <span>{variant.quantity}</span>
+                    <GoChevronRight
+                      onClick={() => handleQuantityChange(index, 'increment')}
+                      className="cursor-pointer text-[#A7A7A7] text-3xl "
+                    />
+
+                  </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex flex-row w-full items-center justify-between gap-10">
+            <label className="text-[#A7A7A7] font-medium text-lg">Sub Category:</label>
+            <Select onValueChange={handleSubCategoryChange}>
+              <SelectTrigger className="w-[75%] pl-2 text-[#A7A7A7]">
+                <SelectValue placeholder="Select category" className='text-[#A7A7A7] ' />
+                <ChevronDown />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  {subCategories.map((item) => (
+                    <SelectItem key={item._id} value={item._id}>
+                      {item.name}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex flex-row w-full items-center justify-between gap-10">
+            <label className="text-[#A7A7A7] capitalize font-medium text-lg">Description:</label>
+            <Input
+              name="desc"
+              value={formData.desc}
+              onChange={handleInputChange}
+              className="w-[75%] pl-2"
+              placeholder="Description"
+            />
+          </div>
+
+          <div className="flex flex-row w-full justify-between gap-8 items-baseline">
+            <label className="text-[#A7A7A7] capitalize font-medium text-nowrap text-lg justify-end" htmlFor="email">
+              Upload image:
+            </label>
+
+            
+
+            <div className='flex items-center w-[75%] text-left gap-4'>
+              <div className="flex flex-row gap-5">
+                {formData.image.map((image, index) => (
+                  <div className='border p-2 rounded-lg'>
+<img src={image} key={index} alt="Preview" className="w-24 h-20 object-cover rounded-md border border-gray-300" />
+                  </div>
+                  
+                ))}
+              </div>
+
+              <input
+                type="file"
+                id='fileInput'
+                multiple
+                className='hidden'
+                required
+                onChange={handleImageUpload}
+              />
+              <label
+                htmlFor="fileInput"
+                className="cursor-pointer flex items-center justify-center w-[115px] h-[84px] rounded-md bg-white hover:bg-gray-100 transition"
+              >
+                <img src="/img5.png" 
+                  className="w-full relative h-full object-contain " alt="" />
+                <img src="/model.png" 
+                  className="w-9 absolute h-9 object-cover " alt="" />
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <DialogFooter>
+          <Button onClick={handleSubmit} className="bg-buttonColor">
+            {title}
+          </Button>
+          <DialogClose asChild>
+            <Button className="bg-[#EEEEEE]">Discard</Button>
+          </DialogClose>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};
+export default AddProduct;  
+
+
+
+
+
+
+
+
+
+import React, { useEffect, useState } from 'react';
+import { Button } from './ui/button';
+import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from './ui/dailog';
+import { Input } from './ui/input';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import { ChevronDown } from 'lucide-react';
+import { GoChevronLeft, GoChevronRight } from 'react-icons/go';
+import { apiRequest } from '../lib/apiRequest';
+import upload from '../lib/upload';
+import ImageCropper from './ImageCropper';
+
+const AddProduct = ({title}) => {
+  const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [subCategories, setSubCategories] = useState([]);
+  const [uploading, setUploading] = useState(false);
+  const [images, setImages] = useState([]); // State to hold selected image files
+  const [selectedRam, setSelectedRam] = useState([]); // State to hold selected RAM options
+  const [formData, setFormData] = useState({
+    name: '',
+    subCategory: '',
+    desc: '',
+    variants: [],
+    image: [], // State to hold uploaded image URLs
+  });
+
+  const ramOptions = [4, 8];
+  const maxQuantity = 100;
+
+  const [variants, setVariants] = useState(
+    ramOptions.map((ram) => ({
+      ram,
+      price: '',
+      quantity: 1,
+    }))
+  );
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await apiRequest.get('/subCategory');
+        setSubCategories(response.data);
+      } catch (error) {
+        console.error(error);
+        setError('Something went wrong while fetching categories.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
+  // Handle image upload with a limit of 3 images
+  const handleImageUpload = async (event) => {
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+
+    // Check if the total number of images exceeds the limit
+    if (formData.image.length + files.length > 3) {
+      alert('You can only upload a maximum of 3 images.');
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const uploadedUrls = await Promise.all(
+        Array.from(files).map(async (file) => {
+          const url = await upload(file);
+          return url;
+        })
+      );
+
+      setFormData((prev) => ({
+        ...prev,
+        image: [...prev.image, ...uploadedUrls],
+      }));
+    } catch (err) {
+      console.error('Upload Error:', err);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleInputChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubCategoryChange = (value) => {
+    setFormData({ ...formData, subCategory: value });
+  };
+
+  const handleRamSelect = (ram) => {
+    setSelectedRam((prevSelected) =>
+      prevSelected.includes(ram) ? prevSelected.filter((item) => item !== ram) : [...prevSelected, ram]
+    );
+  };
+
+  const handleQuantityChange = (index, type) => {
+    setVariants((prevVariants) =>
+      prevVariants.map((variant, i) =>
+        i === index
+          ? {
+              ...variant,
+              quantity:
+                type === 'increment'
+                  ? Math.min(variant.quantity + 1, maxQuantity)
+                  : Math.max(variant.quantity - 1, 1),
+            }
+          : variant
+      )
+    );
+  };
+
+  const handlePriceChange = (index, value) => {
+    setVariants((prevVariants) =>
+      prevVariants.map((variant, i) => (i === index ? { ...variant, price: value } : variant))
+    );
+  };
+
+  const handleSubmit = async () => {
+    const filteredVariants = variants.filter((variant) => selectedRam.includes(variant.ram));
+
+    if (filteredVariants.length === 0) {
+      alert('Please select at least one RAM variant.');
+      return;
+    }
+
+    const productData = {
+      ...formData,
+      variants: filteredVariants,
+    };
+
+    try {
+      console.log('Submitting Data:', productData);
+      const response = await apiRequest.post('/product', productData);
+      alert('Product added successfully!');
+      console.log(response.data);
+    } catch (error) {
+      console.error('Submission Error:', error);
+      alert('Error adding product.');
+    }
+  };
+
+  return (
+    <Dialog className="w-full">
+      <DialogTrigger>
+        <Button variant="secondary" size="base" >
+          {title} product
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="px-4 lg:px-12 lg:w-[63%]">
+        <DialogHeader className="flex items-center justify-center py-6">
+          <DialogTitle className="font-semibold text-xl text-[#3C3C3C]">Add Product</DialogTitle>
+        </DialogHeader>
+
+        <div className="flex flex-col gap-5">
+          {/* Title Input */}
+          <div className="flex flex-row w-full items-center justify-between gap-10">
+            <label className="text-[#A7A7A7] capitalize font-medium text-lg">Title:</label>
+            <Input
+              name="name"
+              value={formData.name}
+              onChange={handleInputChange}
+              className="w-[75%] pl-2"
+              placeholder="Title"
+            />
+          </div>
+
+          {/* Variants Input */}
+          <div className="flex flex-row w-full justify-between gap-10">
+            <label className="text-[#A7A7A7] capitalize font-medium text-lg">Variants:</label>
+            <div className="flex flex-col gap-1 w-[75%]">
+              {variants.map((variant, index) => (
+                <div key={index} className="flex items-center w-full justify-between gap-3 ">
+                  <div className="flex gap-2 items-center flex-1">
+                    <div className='text-[#A7A7A7] font-medium text-sm py-3 font-montserrat'>
+                      Ram:
+                    </div>
+                    <Button
+                      onClick={() => handleRamSelect(variant.ram)}
+                      className={`p-2 border border-[#A7A7A7] text-[#3C3C3C] w-full font-medium text-sm text-left flex justify-start rounded-lg ${
+                        selectedRam.includes(variant.ram) ? 'border-2 border-gray-500' : 'border-[#A7A7A7]'
+                      }`}
+                    >
+                      {variant.ram} GB
+                    </Button>
+                  </div>
+
+                  <div className="flex gap-2 items-center flex-1">
+                    <div className='text-[#A7A7A7] font-medium text-sm py-3 font-montserrat'>
+                      Price:
+                    </div>
+                    <Input
+                      className="p-2  border text-[#3C3C3C] border-[#A7A7A7] font-medium text-sm rounded-lg w-full"
+                      type="number"
+                      value={variant.price}
+                      onChange={(e) => handlePriceChange(index, e.target.value)}
+                      placeholder="Price"
+                    />
+                  </div>
+
+                  <div className="flex gap-2 items-center px-2 lg:pr-4 flex-1">
+                    <div className='text-[#A7A7A7] font-medium text-sm py-3 font-montserrat'>
+                      QTY:
+                    </div>
+
+                    <div className="border border-[#A7A7A7] w-full py-[5px] flex items-center justify-between rounded-lg px-1">
+                      <GoChevronLeft
+                        onClick={() => handleQuantityChange(index, 'decrement')}
+                        className="cursor-pointer text-[#A7A7A7] text-3xl"
+                      />
+                      <span>{variant.quantity}</span>
+                      <GoChevronRight
+                        onClick={() => handleQuantityChange(index, 'increment')}
+                        className="cursor-pointer text-[#A7A7A7] text-3xl"
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Sub Category and Description */}
+          <div className="flex flex-row w-full items-center justify-between gap-10">
+            <label className="text-[#A7A7A7] font-medium text-lg">Sub Category:</label>
+            <Select onValueChange={handleSubCategoryChange}>
+              <SelectTrigger className="w-[75%] pl-2 text-[#A7A7A7]">
+                <SelectValue placeholder="Select category" className='text-[#A7A7A7]' />
+                <ChevronDown />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  {subCategories.map((item) => (
+                    <SelectItem key={item._id} value={item._id}>
+                      {item.name}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex flex-row w-full items-center justify-between gap-10">
+            <label className="text-[#A7A7A7] capitalize font-medium text-lg">Description:</label>
+            <Input
+              name="desc"
+              value={formData.desc}
+              onChange={handleInputChange}
+              className="w-[75%] pl-2"
+              placeholder="Description"
+            />
+          </div>
+
+          {/* Image Upload */}
+          <div className="flex flex-row w-full justify-between gap-8 items-baseline">
+            <label className="text-[#A7A7A7] capitalize font-medium text-nowrap text-lg justify-end" htmlFor="email">
+              Upload image:
+            </label>
+
+            <div className='flex items-center w-[75%] text-left gap-4'>
+              <div className="flex flex-row gap-5">
+                {formData.image.map((image, index) => (
+                  <div className='border p-2 rounded-lg'>
+                    <img src={image} key={index} alt="Preview" className="w-24 h-20 object-cover rounded-md border border-gray-300" />
+                  </div>
+                ))}
+              </div>
+
+              <input
+                type="file"
+                id='fileInput'
+                multiple
+                className='hidden'
+                required
+                onChange={handleImageUpload}
+              />
+              <label
+                htmlFor="fileInput"
+                className="cursor-pointer flex items-center justify-center w-[115px] h-[84px] rounded-md bg-white hover:bg-gray-100 transition"
+              >
+                <img src="/img5.png" className="w-full relative h-full object-contain" alt="" />
+                <img src="/model.png" className="w-9 absolute h-9 object-cover" alt="" />
+              </label>
+            </div>
+          </div>
+        </div>
+
+        {/* Footer with Submit and Cancel */}
+        <DialogFooter>
+          <Button onClick={handleSubmit} className="bg-buttonColor">
+            {title}
+          </Button>
+          <DialogClose asChild>
+            <Button className="bg-[#EEEEEE]">Discard</Button>
+          </DialogClose>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+export default AddProduct;
+
+
+
+
+
+
+
+import React, { useEffect, useState, useRef } from 'react';
+import { Button } from './ui/button';
+import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from './ui/dailog';
+import { Input } from './ui/input';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import { ChevronDown } from 'lucide-react';
+import { GoChevronLeft, GoChevronRight } from 'react-icons/go';
+import { apiRequest } from '../lib/apiRequest';
+import upload from '../lib/upload';
+
+import ReactCrop from 'react-image-crop';
+import 'react-image-crop/dist/ReactCrop.css';
+const AddProduct = ({title}) => {
+  const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [subCategories, setSubCategories] = useState([]);
+  const [uploading, setUploading] = useState(false);
+  const [images, setImages] = useState([]); // State to hold selected image files
+  const [selectedRam, setSelectedRam] = useState([]); // State to hold selected RAM options
+
+  const [src, setSrc] = useState(null);
+  const [crop, setCrop] = useState({ unit: '%', width: 50, aspect: 1 });
+  const [currentFile, setCurrentFile] = useState(null);
+  const [queue, setQueue] = useState([]);
+  const imageRef = useRef(null);
+  const canvasRef = useRef(null);
+
+  const [formData, setFormData] = useState({
+    name: '',
+    subCategory: '',
+    desc: '',
+    variants: [],
+    image: [], // State to hold uploaded image URLs
+  });
+
+  const ramOptions = [4, 8];
+  const maxQuantity = 100;
+
+  const [variants, setVariants] = useState(
+    ramOptions.map((ram) => ({
+      ram,
+      price: '',
+      quantity: 1,
+    }))
+  );
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await apiRequest.get('/subCategory');
+        setSubCategories(response.data);
+      } catch (error) {
+        console.error(error);
+        setError('Something went wrong while fetching categories.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
+  // Handle image upload with a limit of 3 images
+  const handleImageUpload = (event) => {
+    const files = Array.from(event.target.files);
+    if (formData.image.length + files.length > 3) {
+      alert('You can only upload a maximum of 3 images.');
+      return;
+    }
+    setQueue(prev => [...prev, ...files]);
+  };
+
+  const processNextImage = () => {
+    if (queue.length === 0) return;
+    const nextFile = queue[0];
+    setQueue(prev => prev.slice(1));
+    const reader = new FileReader();
+    reader.onload = () => setSrc(reader.result);
+    reader.readAsDataURL(nextFile);
+    setCurrentFile(nextFile);
+  };
+
+  const handleCropComplete = async () => {
+    if (!imageRef.current || !canvasRef.current) return;
+
+    const image = imageRef.current;
+    const cropArea = {
+      x: crop.x * (image.naturalWidth / image.width),
+      y: crop.y * (image.naturalHeight / image.height),
+      width: crop.width * (image.naturalWidth / image.width),
+      height: crop.height * (image.naturalHeight / image.height),
+    };
+
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    
+    canvas.width = cropArea.width;
+    canvas.height = cropArea.height;
+
+    ctx.drawImage(
+      image,
+      cropArea.x,
+      cropArea.y,
+      cropArea.width,
+      cropArea.height,
+      0,
+      0,
+      cropArea.width,
+      cropArea.height
+    );
+
+    canvas.toBlob(async (blob) => {
+      try {
+        setUploading(true);
+        const croppedFile = new File([blob], currentFile.name, {
+          type: 'image/jpeg',
+          lastModified: Date.now(),
+        });
+
+        const url = await upload(croppedFile);
+        setFormData(prev => ({
+          ...prev,
+          image: [...prev.image, url]
+        }));
+        
+        setSrc(null);
+        setCurrentFile(null);
+        if (queue.length > 0) processNextImage();
+      } catch (err) {
+        console.error('Upload Error:', err);
+      } finally {
+        setUploading(false);
+      }
+    }, 'image/jpeg');
+  };
+
+  useEffect(() => {
+    if (queue.length > 0 && !currentFile) processNextImage();
+  }, [queue, currentFile]);
+  const handleInputChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubCategoryChange = (value) => {
+    setFormData({ ...formData, subCategory: value });
+  };
+
+  const handleRamSelect = (ram) => {
+    setSelectedRam((prevSelected) =>
+      prevSelected.includes(ram) ? prevSelected.filter((item) => item !== ram) : [...prevSelected, ram]
+    );
+  };
+
+  const handleQuantityChange = (index, type) => {
+    setVariants((prevVariants) =>
+      prevVariants.map((variant, i) =>
+        i === index
+          ? {
+              ...variant,
+              quantity:
+                type === 'increment'
+                  ? Math.min(variant.quantity + 1, maxQuantity)
+                  : Math.max(variant.quantity - 1, 1),
+            }
+          : variant
+      )
+    );
+  };
+
+  const handlePriceChange = (index, value) => {
+    setVariants((prevVariants) =>
+      prevVariants.map((variant, i) => (i === index ? { ...variant, price: value } : variant))
+    );
+  };
+
+  const handleSubmit = async () => {
+    const filteredVariants = variants.filter((variant) => selectedRam.includes(variant.ram));
+
+    if (filteredVariants.length === 0) {
+      alert('Please select at least one RAM variant.');
+      return;
+    }
+
+    const productData = {
+      ...formData,
+      variants: filteredVariants,
+    };
+
+    try {
+      console.log('Submitting Data:', productData);
+      const response = await apiRequest.post('/product', productData);
+      alert('Product added successfully!');
+      console.log(response.data);
+    } catch (error) {
+      console.error('Submission Error:', error);
+      alert('Error adding product.');
+    }
+  };
+
+  return (
+    <Dialog className="w-full">
+      <DialogTrigger>
+        <Button variant="secondary" size="base" >
+          {title} product
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="px-4 lg:px-12 lg:w-[63%]">
+        <DialogHeader className="flex items-center justify-center py-6">
+          <DialogTitle className="font-semibold text-xl text-[#3C3C3C]">Add Product</DialogTitle>
+        </DialogHeader>
+
+        <div className="flex flex-col gap-5">
+          {/* Title Input */}
+          <div className="flex flex-row w-full items-center justify-between gap-10">
+            <label className="text-[#A7A7A7] capitalize font-medium text-lg">Title:</label>
+            <Input
+              name="name"
+              value={formData.name}
+              onChange={handleInputChange}
+              className="w-[75%] pl-2"
+              placeholder="Title"
+            />
+          </div>
+
+          {/* Variants Input */}
+          <div className="flex flex-row w-full justify-between gap-10">
+            <label className="text-[#A7A7A7] capitalize font-medium text-lg">Variants:</label>
+            <div className="flex flex-col gap-1 w-[75%]">
+              {variants.map((variant, index) => (
+                <div key={index} className="flex items-center w-full justify-between gap-3 ">
+                  <div className="flex gap-2 items-center flex-1">
+                    <div className='text-[#A7A7A7] font-medium text-sm py-3 font-montserrat'>
+                      Ram:
+                    </div>
+                    <Button
+                      onClick={() => handleRamSelect(variant.ram)}
+                      className={`p-2 border border-[#A7A7A7] text-[#3C3C3C] w-full font-medium text-sm text-left flex justify-start rounded-lg ${
+                        selectedRam.includes(variant.ram) ? 'border-2 border-gray-500' : 'border-[#A7A7A7]'
+                      }`}
+                    >
+                      {variant.ram} GB
+                    </Button>
+                  </div>
+
+                  <div className="flex gap-2 items-center flex-1">
+                    <div className='text-[#A7A7A7] font-medium text-sm py-3 font-montserrat'>
+                      Price:
+                    </div>
+                    <Input
+                      className="p-2  border text-[#3C3C3C] border-[#A7A7A7] font-medium text-sm rounded-lg w-full"
+                      type="number"
+                      value={variant.price}
+                      onChange={(e) => handlePriceChange(index, e.target.value)}
+                      placeholder="Price"
+                    />
+                  </div>
+
+                  <div className="flex gap-2 items-center px-2 lg:pr-4 flex-1">
+                    <div className='text-[#A7A7A7] font-medium text-sm py-3 font-montserrat'>
+                      QTY:
+                    </div>
+
+                    <div className="border border-[#A7A7A7] w-full py-[5px] flex items-center justify-between rounded-lg px-1">
+                      <GoChevronLeft
+                        onClick={() => handleQuantityChange(index, 'decrement')}
+                        className="cursor-pointer text-[#A7A7A7] text-3xl"
+                      />
+                      <span>{variant.quantity}</span>
+                      <GoChevronRight
+                        onClick={() => handleQuantityChange(index, 'increment')}
+                        className="cursor-pointer text-[#A7A7A7] text-3xl"
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Sub Category and Description */}
+          <div className="flex flex-row w-full items-center justify-between gap-10">
+            <label className="text-[#A7A7A7] font-medium text-lg">Sub Category:</label>
+            <Select onValueChange={handleSubCategoryChange}>
+              <SelectTrigger className="w-[75%] pl-2 text-[#A7A7A7]">
+                <SelectValue placeholder="Select category" className='text-[#A7A7A7]' />
+                <ChevronDown />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  {subCategories.map((item) => (
+                    <SelectItem key={item._id} value={item._id}>
+                      {item.name}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex flex-row w-full items-center justify-between gap-10">
+            <label className="text-[#A7A7A7] capitalize font-medium text-lg">Description:</label>
+            <Input
+              name="desc"
+              value={formData.desc}
+              onChange={handleInputChange}
+              className="w-[75%] pl-2"
+              placeholder="Description"
+            />
+          </div>
+
+          {/* Image Upload */}
+
+
+
+          {src && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+          <div className="bg-white p-4 rounded-lg max-w-md w-full">
+            <ReactCrop
+              crop={crop}
+              onChange={c => setCrop(c)}
+              onComplete={c => setCrop(c)}
+            >
+              <img
+                ref={imageRef}
+                src={src}
+                alt="Crop preview"
+                style={{ maxWidth: '100%' }}
+              />
+            </ReactCrop>
+            <canvas ref={canvasRef} style={{ display: 'none' }} />
+            <div className="flex justify-end gap-2 mt-4">
+              <Button
+                onClick={() => {
+                  setSrc(null);
+                  setCurrentFile(null);
+                }}
+                className="bg-red-500"
+              >
+                Cancel
+              </Button>
+              <Button onClick={handleCropComplete} className="bg-green-500">
+                Crop & Upload
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+          <div className="flex flex-row w-full justify-between gap-8 items-baseline">
+            <label className="text-[#A7A7A7] capitalize font-medium text-nowrap text-lg justify-end" htmlFor="email">
+              Upload image:
+            </label>
+
+            <div className='flex items-center w-[75%] text-left gap-4'>
+              <div className="flex flex-row gap-5">
+                {formData.image.map((image, index) => (
+                  <div className='border p-2 rounded-lg'>
+                    <img src={image} key={index} alt="Preview" className="w-24 h-20 object-cover rounded-md border border-gray-300" />
+                  </div>
+                ))}
+              </div>
+
+              <input
+                type="file"
+                id='fileInput'
+                multiple
+                className='hidden'
+                required
+                onChange={handleImageUpload}
+              />
+              <label
+                htmlFor="fileInput"
+                className="cursor-pointer flex items-center justify-center w-[115px] h-[84px] rounded-md bg-white hover:bg-gray-100 transition"
+              >
+                <img src="/img5.png" className="w-full relative h-full object-contain" alt="" />
+                <img src="/model.png" className="w-9 absolute h-9 object-cover" alt="" />
+              </label>
+            </div>
+          </div>
+        </div>
+
+        {/* Footer with Submit and Cancel */}
+        <DialogFooter>
+          <Button onClick={handleSubmit} className="bg-buttonColor">
+            {title}
+          </Button>
+          <DialogClose asChild>
+            <Button className="bg-[#EEEEEE]">Discard</Button>
+          </DialogClose>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+export default AddProduct;
+
+
