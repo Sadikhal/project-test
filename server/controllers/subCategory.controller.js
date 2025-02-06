@@ -34,7 +34,7 @@ export const createSubCategory = async (req, res, next) => {
 };
 
 
-// get all categories
+// get all sub categories
 export const getSubCategories = async (req, res, next) => {
   try {
     const subcategories = await SubCategory.find().populate("category", "name");
@@ -45,20 +45,20 @@ export const getSubCategories = async (req, res, next) => {
   }
 
 
-//category wise
-export const getSubCategory = async (req, res , next) => {
-  try {
-    const subcategories = await SubCategory.find({ category: req.params.categoryId });
-    res.status(200).json(subcategories);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
+// //category wise
+// export const getSubCategory = async (req, res , next) => {
+//   try {
+//     const subcategories = await SubCategory.find({ category: req.params.categoryId });
+//     res.status(200).json(subcategories);
+//   } catch (error) {
+//     res.status(500).json({ error: error.message });
+//   }
+// };
 
 export const getSingleSubCategory = async (req, res , next) => {
   try {
     const subCategory = await SubCategory.findById(req.params.id);
-    if (!category) next(createError(404, "Category not found"));
+    if (!subCategory) next(createError(404, "subCategory not found"));
     res.status(200).json(subCategory);
   } catch (error) {
     next(error);
@@ -71,7 +71,7 @@ export const deleteSubCategory = async (req, res, next) => {
   try {
     const { id } = req.params;
     await SubCategory.findByIdAndDelete(id);
-    res.status(200).send("category has been deleted!");
+    res.status(200).send("sub category has been deleted!");
   } catch (err) {
     next(err);
 };
