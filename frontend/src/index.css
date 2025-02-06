@@ -13,7 +13,7 @@
   --color-inputGreen: #F4F8F5;
   --color-textBlack :  #3C3C3C;
   --color-buttonColor : #EDA415;
-  --color-bgColor : #FFFF,
+  --color-bgColor :    #FFFF;
   --color-textBlack : #373737;
   --color-navColor : #003F62;
   --color-textColor: #003F62;
@@ -23,5 +23,5 @@
   --font-poppins:"Poppins",serif;
   --font-figtree:"Figtree",serif;
   --font-montserrat:"Montserrat",serif;
- 
+
 }
