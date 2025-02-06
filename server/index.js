@@ -31,6 +31,12 @@ app.use("/", (req,res) => {
   res.send("API is running...");
 });
 
+
+app.use((err, req, res, next) => {
+  console.error(err.stack);  // Logs the full stack trace
+  res.status(500).json({ error: err.message || 'Something went wrong!' });
+});
+
 const PORT = process.env.PORT || 3002;
 app.listen(PORT, () => {
   connected();
