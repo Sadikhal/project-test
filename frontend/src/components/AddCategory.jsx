@@ -64,7 +64,7 @@ const AddCategory = () => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="primary" className="p" size="base">
+        <Button  variant="primary"  size="base">
           Add Category
         </Button>
       </DialogTrigger>

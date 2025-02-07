@@ -85,7 +85,7 @@ const AddSubCategory = ({ data }) => {
   return (
     <Dialog className="max-w-sm">
       <DialogTrigger>
-        <Button variant="secondary" size="base">Add Sub Category</Button>
+        <Button variant="primary" size="base">Add Sub Category</Button>
       </DialogTrigger>
       <DialogContent className="flex flex-col items-center justify-center max-w-xs pt-10">
         <DialogHeader className="flex items-center justify-center">

@@ -15,9 +15,9 @@ const buttonVariants = cva(
         outline:
           "border border-input border-[1.5px] bg-background hover:border hover:border-bgColor/100 hover:text-accent-foreground",
         secondary:
-          "bg-buttonColor  text-bgColor hover:bg-buttonColor/80 rounded-2xl text-sm font-poppins font-semibold ",
+          "bg-buttonColor  text-bgColor hover:bg-buttonColor/80 rounded-2xl md:text-sm text-[12px] font-poppins font-semibold ",
           primary:
-          "bg-buttonColor  text-bgColor hover:bg-buttonColor/80 rounded-2xl text-sm font-poppins font-semibold ",
+          "bg-buttonColor  text-bgColor hover:bg-buttonColor/80 rounded-2xl md:text-sm text-[12px] font-poppins font-semibold ",
         service:
           "bg-slate-900 text-secondary-foreground hover:bg-primary hover:text-primary-foreground",
         ghost: "hover:bg-accent hover:text-accent-foreground",
@@ -27,7 +27,7 @@ const buttonVariants = cva(
         logo: "h-5 px-3 py-5",
          hero: "pt-[19px] pb-[16px] pl-[50px] pr-[50px]",
         default: "h-10 px-4 py-2",
-        base: "h-11 lg:px-4 lg:py-4 md:px-3 md:py-3 px-2 py-2",
+        base: "h-11 lg:px-4 lg:py-4 md:px-3 md:py-3 px-1 py-2",
         sm: "h-11 rounded-md px-2",
         lg: "h-11 rounded-md px-8",
         xl: "h-11 rounded-full px-[66px]",

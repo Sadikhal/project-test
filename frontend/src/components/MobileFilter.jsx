@@ -7,7 +7,7 @@ const MobileFilter = ({data,subCategoryfilter,selectedSubCategories}) => {
     <div className='flex lg:hidden'>
       <Sheet className="h-full p-12 w-96">
         <SheetTrigger className="-mt-2">
-          <div size={40} className=" text-lamateal text-[24px] px-2">
+          <div size={40} className=" text-lamateal text-[20px] md:text-[24px] md:px-2">
           <GiHamburgerMenu className="text-navColor" />
           </div>
         </SheetTrigger>

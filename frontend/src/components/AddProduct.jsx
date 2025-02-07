@@ -192,7 +192,7 @@ const AddProduct = ({ title, product }) => {
         <Button
           variant="secondary"
           className={cn(
-            "text-sm font-poppins font-semibold h-11 lg:px-4 lg:py-4 md:px-3 md:py-3 px-2 py-2",
+            " font-poppins font-semibold h-11 lg:px-4 lg:py-4 md:px-3 md:py-3 px-2 py-2",
             title === "Edit" && "lg:px-12 px-8 md:px-12"
           )}
         >
@@ -200,7 +200,7 @@ const AddProduct = ({ title, product }) => {
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="px-4 lg:px-12 lg:w-[63%]">
+      <DialogContent className="px-4 lg:px-12 lg:w-[63%] w-[95%] flex flex-col">
         <DialogHeader className="flex items-center justify-center py-6">
           <DialogTitle className="font-semibold text-xl text-[#3C3C3C]">
             {title} Product
@@ -209,7 +209,7 @@ const AddProduct = ({ title, product }) => {
 
         <div className="flex flex-col gap-5">
           <div className="flex flex-row w-full items-center justify-between gap-10">
-            <label className="text-[#A7A7A7] capitalize font-medium text-lg">Title:</label>
+            <label className="text-[#A7A7A7] capitalize font-medium text-base md:text-lg">Title:</label>
             <Input
               name="name"
               value={formData.name}
@@ -219,16 +219,16 @@ const AddProduct = ({ title, product }) => {
             />
           </div>
 
-          <div className="flex flex-row w-full justify-between gap-10">
-            <label className="text-[#A7A7A7] capitalize font-medium text-lg">Variants:</label>
-            <div className="flex flex-col gap-1 w-[75%]">
+          <div className="flex flex-row w-full justify-between gap-2 md:gap-10 items-center md:items-end">
+            <label className="text-[#A7A7A7] capitalize font-medium text-base md:text-lg">Variants:</label>
+            <div className="flex md:flex-col flex-row gap-1 w-full md:w-[75%] ">
               {variants.map((variant, index) => (
-                <div key={index} className="flex items-center w-full justify-between gap-3 ">
-                  <div className="flex gap-2 items-center flex-1">
-                    <div className='text-[#A7A7A7] font-medium text-sm py-3 font-montserrat'>Ram:</div>
+                <div key={index} className="flex md:items-center w-full md:justify-between gap-3 flex-col md:flex-row">
+                  <div className="flex gap-2 md:items-center flex-1">
+                    <div className='text-[#A7A7A7] font-medium text-xs sm:text-sm py-3 font-montserrat'>Ram:</div>
                     <Button
                       onClick={() => handleRamSelect(variant.ram)}
-                      className={`p-2 cursor-pointer border text-[#3C3C3C] w-full font-medium text-sm text-left flex justify-start rounded-lg ${
+                      className={`p-2 cursor-pointer border text-[#3C3C3C] w-full font-medium text-xs sm:text-sm text-left flex justify-start rounded-lg ${
                         selectedRam.includes(variant.ram) ? 'border-2 border-gray-500' : 'border-[#A7A7A7]'
                       }`}
                     >
@@ -237,9 +237,9 @@ const AddProduct = ({ title, product }) => {
                   </div>
 
                   <div className="flex gap-2 items-center flex-1">
-                    <div className='text-[#A7A7A7] font-medium text-sm py-3 font-montserrat'>Price:</div>
+                    <div className='text-[#A7A7A7] font-medium text-xs sm:text-sm py-3 font-montserrat'>Price:</div>
                     <Input
-                      className="p-2 border cursor-pointer text-[#3C3C3C] border-[#A7A7A7] font-medium text-sm rounded-lg w-full"
+                      className="p-2 border cursor-pointer text-[#3C3C3C] border-[#A7A7A7] font-medium text-xs sm:text-sm rounded-lg w-full"
                       type="number"
                       value={variant.price}
                       onChange={(e) => handlePriceChange(index, e.target.value)}
@@ -248,16 +248,16 @@ const AddProduct = ({ title, product }) => {
                   </div>
 
                   <div className="flex gap-2 items-center px-2 lg:pr-4 flex-1">
-                    <div className='text-[#A7A7A7] font-medium text-sm py-3 cursor-pointer font-montserrat'>QTY:</div>
+                    <div className='text-[#A7A7A7] font-medium text-xs sm:text-sm py-3 cursor-pointer font-montserrat'>QTY:</div>
                     <div className="border border-[#A7A7A7] w-full py-[5px] flex items-center justify-between rounded-lg px-1">
                       <GoChevronLeft
                         onClick={() => handleQuantityChange(index, 'decrement')}
-                        className="cursor-pointer text-[#A7A7A7] cursor-pointer text-3xl"
+                        className="cursor-pointer text-[#A7A7A7] text-3xl"
                       />
                       <span>{variant.quantity}</span>
                       <GoChevronRight
                         onClick={() => handleQuantityChange(index, 'increment')}
-                        className="cursor-pointer cursor-pointer text-[#A7A7A7] text-3xl"
+                        className="cursor-pointer  text-[#A7A7A7] text-3xl"
                       />
                     </div>
                   </div>
@@ -266,8 +266,8 @@ const AddProduct = ({ title, product }) => {
             </div>
           </div>
 
-          <div className="flex flex-row w-full items-center justify-between gap-10">
-            <label className="text-[#A7A7A7] font-medium text-lg">Sub Category:</label>
+          <div className="flex flex-row w-full items-center justify-between  md:gap-10">
+            <label className="text-[#A7A7A7] font-medium text-base md:text-lg">Sub Category:</label>
             <Select onValueChange={handleSubCategoryChange} value={formData.subCategory}>
               <SelectTrigger className="w-[75%] pl-2 placeholder:text-[#A7A7A7] text-black py-[22px] border-[1.5px] border-[#3C3C3C73]">
                 <SelectValue placeholder="Select category" className='placeholder:text-[#A7A7A7] text-black' />
@@ -285,23 +285,23 @@ const AddProduct = ({ title, product }) => {
             </Select>
           </div>
 
-          <div className="flex flex-row w-full items-center justify-between gap-10">
-            <label className="text-[#A7A7A7] capitalize font-medium text-lg">Description:</label>
+          <div className="flex flex-row w-full items-center justify-between gap-2 md:gap-10">
+            <label className="text-[#A7A7A7] capitalize font-medium text-base md:text-lg">Description:</label>
             <Input
               name="desc"
               value={formData.desc}
               onChange={handleInputChange}
-              className="w-[75%] pl-2 py-[22px] border-[1.5px] border-[#3C3C3C73] rounded-lg border-[#3C3C3C73]"
+              className="w-[75%] pl-2 py-[22px] border-[1.5px]  rounded-lg border-[#3C3C3C73]"
               placeholder="Description"
             />
           </div>
 
-          <div className="flex flex-row w-full justify-between gap-8 items-baseline">
-            <label className="text-[#A7A7A7] capitalize font-medium text-nowrap text-lg justify-end">
+          <div className="flex flex-row w-full justify-between gap-3 md:gap-8 items-baseline">
+            <label className="text-[#A7A7A7] capitalize font-medium text-nowrap text-base md:text-lg justify-end">
               Upload image:
             </label>
             <div className='flex items-center w-[75%] text-left gap-4'>
-              <div className="flex flex-row gap-5">
+              <div className="flex flex-row flex-wrap sm:flex-nowrap gap-5">
                 {formData.image.map((image, index) => (
                   <div className='border-[1.5px] border-[#3C3C3C73] p-2 rounded-lg' key={index}>
                     <img 
@@ -331,7 +331,7 @@ const AddProduct = ({ title, product }) => {
           </div>
         </div>
 
-        <DialogFooter>
+        <DialogFooter className="flex flex-col md:flex-row gap-3">
           <Button onClick={handleSubmit} className="bg-buttonColor text-bgColor px-6 py-0 uppercase">
             {title}
           </Button>

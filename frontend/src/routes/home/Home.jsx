@@ -100,7 +100,7 @@ function Home() {
   }, []);
 
   return (
-    <div className='w-full md:px-7 lg:px-12 flex px-3 sm:px-4 flex-row gap-6'>
+    <div className='w-full md:px-7 lg:px-12 flex px-3 sm:px-4 flex-row md:gap-6 gap-2 overflow-hidden'>
       
 
       {/* Sidebar - Categories and Filters */}
@@ -139,7 +139,7 @@ function Home() {
           <>
 
         {/* Add Buttons for Categories, Subcategories, and Products */}
-        <div className='pt-6 flex flex-row w-full md:gap-7 gap-3 items-end justify-end'>
+        <div className='pt-6 flex flex-row w-full md:gap-7 gap-2 items-end justify-end'>
           <AddCategory />
           <AddSubCategory data={categories} />
           <AddProduct title="Add"/>
@@ -150,7 +150,7 @@ function Home() {
           pt-2 grid 
           grid-cols-1 sm:grid-cols-2 md:grid-cols-2
           lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4
-          gap-6
+          gap-6 pr-6 md:pr-4 lg:pr-0
         ">
           {Array.isArray(products) && products.map((listing) => (
             <ProductCard key={listing.id} data={listing} wishlist={true} />

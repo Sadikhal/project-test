@@ -35,8 +35,8 @@ const  {currentUser}  = useSelector((state) => state.user);
         <div className='w-full text-right justify-end flex items-end'>
           <div className='relative lg:w-[55%] w-full'>
             <input 
-              className="placeholder:text-[#292D32] font-normal  placeholder:text-sm text-sm w-full rounded-2xl py-3 pl-9 pr-3 shadow-sm focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1 sm:text-sm font-poppins bg-bgColor"
-              placeholder="Search for anything"
+              className="placeholder:text-[#292D32] font-normal  placeholder:text-sm text-sm w-full rounded-2xl py-3 lg:pl-9 pl-3 md:pl-5 pr-3 shadow-sm focus:outline-none focus:border-sky-500 focus:ring-sky-500 focus:ring-1 sm:text-sm font-poppins bg-bgColor"
+              placeholder="Search anything"
               type="text"
               name="search"
               value={localSearchTerm}
