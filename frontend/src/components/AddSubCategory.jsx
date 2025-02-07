@@ -63,7 +63,6 @@ const AddSubCategory = ({ data }) => {
     }
     try {
       const response = await apiRequest.post('/subCategory', {...formData}); 
-      console.log(formData); 
       toast({
         variant: 'primary',
         description: 'Sub category added successfully',
