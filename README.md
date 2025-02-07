@@ -1,4 +1,4 @@
-## product management application
+## Product Management Application
 ![png(1)](https://github.com/user-attachments/assets/d1e1466b-a348-46c9-8aa5-d4b01b2a9d10)
 
 ## Features:
@@ -26,7 +26,7 @@ https://project-test-1-2ayh.onrender.com/
 ### Cloning the repository
 
 ```shell
-git clone https://github.com/sadikhal/project-test.git
+git clone https://github.com/Sadikhal/project-test.git
 ```
 
 
