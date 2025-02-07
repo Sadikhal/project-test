@@ -32,9 +32,11 @@ app.use("/api/product", productRoutes);
 // });
 
 
-app.use((err, req, res, next) => {
-  console.error(err.stack);  // Logs the full stack trace
-  res.status(500).json({ error: err.message || 'Something went wrong!' });
+app.use((req, res, next) => {
+  if (req.headers['x-forwarded-proto'] !== 'https') {
+    return res.redirect(['https://', req.get('Host'), req.url].join(''));
+  }
+  next();
 });
 
 const PORT = process.env.PORT || 3002;
