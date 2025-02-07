@@ -62,15 +62,17 @@ const AddSubCategory = ({ data }) => {
       return;
     }
     try {
-      const response = await apiRequest.post('/subCategory', {...formData});  
+      const response = await apiRequest.post('/subCategory', {...formData}); 
+      console.log(formData); 
       toast({
         variant: 'primary',
         description: 'Sub category added successfully',
       });
       setFormData(initialFormData)
     } catch (error) {
-      const errorMsg = err.response?.data?.message || "There was a problem with your request";
+      const errorMsg = error.response?.data?.message || "There was a problem with your request";
       setError(errorMsg);
+      console.log(error); 
       toast({
         variant: 'destructive',
         title: "Uh oh! Something went wrong.",
